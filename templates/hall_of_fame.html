@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}JSPM Good Samaritan Hall of Fame & Certificates{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-amber-500 via-orange-600 to-amber-700 text-slate-950 p-8 sm:p-12 rounded-3xl shadow-xl mb-10 relative overflow-hidden">
+        <div class="relative z-10 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/20 text-slate-950 text-xs font-black uppercase tracking-wider mb-3">
+                <i class="fa-solid fa-award"></i> Campus Integrity Protocol
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight mb-3">
+                Good Samaritan Hall of Fame
+            </h1>
+            <p class="text-xs sm:text-base text-amber-950 font-semibold leading-relaxed mb-6">
+                Recognizing JSPM University students and staff who demonstrated outstanding honesty by safely turning in lost belongings to their owners.
+            </p>
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="bg-slate-950 text-amber-300 font-mono text-xs font-extrabold px-4 py-2 rounded-xl">
+                    🏆 {{ total_returned }} Honesty Awards Issued
+                </span>
+                <span class="bg-white/40 backdrop-blur-md text-slate-950 text-xs font-bold px-4 py-2 rounded-xl">
+                    ⭐ 100 Karma Points Per Recovery
+                </span>
+            </div>
+        </div>
+
+        <!-- Decorative background glow -->
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-white/20 rounded-full blur-2xl pointer-events-none"></div>
+    </div>
+
+    <!-- Live Certificates Grid -->
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="font-black text-lg text-slate-900">Verified Campus Honesty Awards</h3>
+                <p class="text-xs text-slate-500">Click any award to view and download the official signed certificate.</p>
+            </div>
+        </div>
+
+        {% if returned_items %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for it in returned_items %}
+                    <div class="bg-white border-2 border-amber-200/80 rounded-3xl p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                        
+                        <div>
+                            <!-- Header badge -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-black shadow-inner">
+                                    <i class="fa-solid fa-medal"></i>
+                                </div>
+                                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-200">
+                                    <i class="fa-solid fa-circle-check"></i> Handoff Completed
+                                </span>
+                            </div>
+
+                            <!-- Student Info -->
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Honored Samaritan</p>
+                            <h4 class="font-black text-base text-slate-900 mb-1 group-hover:text-blue-600 transition">
+                                {{ it.reporter_name }}
+                            </h4>
+
+                            <!-- Recovered Item -->
+                            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 mb-4 mt-3">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Safely Returned Property:</p>
+                                <p class="text-xs font-bold text-slate-800 line-clamp-1 mt-0.5">{{ it.title }}</p>
+                                <p class="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-location-dot text-rose-500 text-[9px]"></i> {{ it.location }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Certificate Action -->
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-[10px] font-mono text-slate-400">ID #JSPM-{{ it.id }}</span>
+                            <a href="{{ url_for('view_certificate', item_id=it.id) }}" target="_blank"
+                               class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-award"></i>
+                                <span>View Certificate</span>
+                            </a>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200 p-8">
+                <i class="fa-solid fa-award text-4xl text-amber-300 mb-2"></i>
+                <h4 class="font-bold text-slate-800 text-base">No items returned yet today</h4>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+                    When found items are verified and collected at the Security Desk, student certificates will be recognized here!
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -400,6 +400,22 @@ def campus_map():
                            location_data=location_data, 
                            top_hotspot=sorted_hotspots[0] if sorted_hotspots else None)
 
+@app.route('/certificates')
+def certificates():
+    conn = database.get_db()
+    cursor = conn.cursor()
+    # Fetch all returned and found items eligible for honesty recognition
+    cursor.execute("SELECT * FROM items WHERE status = 'returned' ORDER BY id DESC")
+    returned_items = [dict(r) for r in cursor.fetchall()]
+    
+    cursor.execute("SELECT COUNT(*) FROM items WHERE status = 'returned'")
+    total_returned = cursor.fetchone()[0]
+    
+    conn.close()
+    return render_template('hall_of_fame.html', 
+                           returned_items=returned_items, 
+                           total_returned=total_returned)
+
 @app.route('/certificate/<int:item_id>')
 def view_certificate(item_id):
     conn = database.get_db()
@@ -441,4 +457,4 @@ if __name__ == '__main__':
     print("  Or: http://localhost:5000")
     print("  Keep this terminal window open while using the website!")
     print("==================================================================")
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)

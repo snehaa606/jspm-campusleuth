@@ -88,6 +88,11 @@
                         <span>Campus Radar</span>
                         <span class="bg-blue-100 text-blue-800 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">Heatmap</span>
                     </a>
+                    <a href="{{ url_for('certificates') }}" class="px-3 py-2 rounded-lg text-sm font-semibold text-amber-800 hover:bg-amber-50 transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-award text-amber-600 text-base"></i>
+                        <span>Honesty Certificates</span>
+                        <span class="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">Awards</span>
+                    </a>
                     <a href="{{ url_for('daily_digest') }}" class="px-3 py-2 rounded-lg text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center gap-1.5">
                         <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
                         <span>Daily WhatsApp Digest</span>
@@ -159,28 +164,32 @@
     </footer>
 
     <!-- Native Mobile App Bottom Navigation Bar (Visible on phones) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 px-2 py-2 flex items-center justify-around shadow-lg">
-        <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-1 py-1 px-3 text-slate-600 hover:text-blue-600 transition">
-            <i class="fa-solid fa-house text-base"></i>
-            <span class="text-[10px] font-bold">Feed</span>
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 px-1 py-1.5 flex items-center justify-around shadow-lg">
+        <a href="{{ url_for('index') }}" class="flex flex-col items-center gap-0.5 py-1 px-2 text-slate-600 hover:text-blue-600 transition">
+            <i class="fa-solid fa-house text-sm"></i>
+            <span class="text-[9px] font-bold">Feed</span>
         </a>
-        <a href="{{ url_for('report_found') }}" class="flex flex-col items-center gap-1 py-1 px-3 text-emerald-600 hover:text-emerald-700 transition">
-            <div class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center -mt-4 shadow-md font-bold">
+        <a href="{{ url_for('campus_map') }}" class="flex flex-col items-center gap-0.5 py-1 px-2 text-blue-600 hover:text-blue-700 transition">
+            <i class="fa-solid fa-satellite-dish text-sm animate-pulse"></i>
+            <span class="text-[9px] font-bold">Radar</span>
+        </a>
+        <a href="{{ url_for('report_found') }}" class="flex flex-col items-center gap-0.5 py-1 px-2 text-emerald-600 hover:text-emerald-700 transition">
+            <div class="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center -mt-3 shadow-md font-bold text-xs">
                 <i class="fa-solid fa-plus"></i>
             </div>
-            <span class="text-[10px] font-bold">Found</span>
+            <span class="text-[9px] font-bold">Found</span>
         </a>
-        <a href="{{ url_for('report_lost') }}" class="flex flex-col items-center gap-1 py-1 px-3 text-rose-600 hover:text-rose-700 transition">
-            <i class="fa-solid fa-circle-exclamation text-base"></i>
-            <span class="text-[10px] font-bold">Lost</span>
+        <a href="{{ url_for('certificates') }}" class="flex flex-col items-center gap-0.5 py-1 px-2 text-amber-600 hover:text-amber-700 transition">
+            <i class="fa-solid fa-award text-sm"></i>
+            <span class="text-[9px] font-bold">Awards</span>
         </a>
-        <a href="{{ url_for('daily_digest') }}" class="flex flex-col items-center gap-1 py-1 px-3 text-slate-600 hover:text-emerald-600 transition">
-            <i class="fa-brands fa-whatsapp text-base text-emerald-600"></i>
-            <span class="text-[10px] font-bold">Digest</span>
+        <a href="{{ url_for('daily_digest') }}" class="flex flex-col items-center gap-0.5 py-1 px-2 text-slate-600 hover:text-emerald-600 transition">
+            <i class="fa-brands fa-whatsapp text-sm text-emerald-600"></i>
+            <span class="text-[9px] font-bold">Digest</span>
         </a>
-        <a href="{{ url_for('security_desk') }}" class="flex flex-col items-center gap-1 py-1 px-3 text-slate-600 hover:text-blue-600 transition">
-            <i class="fa-solid fa-shield-halved text-base"></i>
-            <span class="text-[10px] font-bold">Desk</span>
+        <a href="{{ url_for('security_desk') }}" class="flex flex-col items-center gap-0.5 py-1 px-2 text-slate-600 hover:text-blue-600 transition">
+            <i class="fa-solid fa-shield-halved text-sm"></i>
+            <span class="text-[9px] font-bold">Desk</span>
         </a>
     </nav>
 
