@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Report Found Item | JSPM CampuSleuth{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{{ url_for('index') }}" class="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 mb-3">
+            <i class="fa-solid fa-arrow-left"></i> Back to Live Feed
+        </a>
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center text-xl font-bold shadow-md">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-slate-900">Report a Found Item</h1>
+                <p class="text-xs text-slate-500 font-medium">Auto-tags your item and generates a pre-formatted WhatsApp broadcast card immediately.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Auto-Fill Assistant (Solves the typing problem!) -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 p-5 rounded-2xl mb-8 shadow-sm">
+        <div class="flex items-center gap-2 text-blue-900 font-bold text-xs uppercase tracking-wider mb-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i>
+            <span>AI Quick-Fill Assistant (Save Typing Time)</span>
+        </div>
+        <p class="text-xs text-slate-600 mb-3">Type or paste a quick note (e.g. <em>"Found black boat airdopes in canteen"</em>) and let AI fill the form for you.</p>
+        <div class="flex gap-2">
+            <input type="text" id="quickInput" placeholder="e.g. Found blue Milton bottle in library 1st floor..." 
+                   class="flex-1 px-4 py-2 bg-white border border-blue-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="button" onclick="runAutoTag()" id="autoTagBtn" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-bolt"></i> Auto-Fill
+            </button>
+        </div>
+        <div id="aiFeedback" class="hidden text-xs text-emerald-700 font-semibold mt-2 flex items-center gap-1">
+            <i class="fa-solid fa-circle-check"></i> Form fields populated automatically!
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <form method="POST" enctype="multipart/form-data" class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+
+        <!-- Title -->
+        <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Item Title / Name <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" name="title" id="formTitle" required placeholder="e.g. Black boAt Airdopes 141 Charging Case" 
+                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+        </div>
+
+        <!-- Category & Location -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    Category <span class="text-rose-500">*</span>
+                </label>
+                <select name="category" id="formCategory" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for cat in CATEGORIES %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                    JSPM Campus Location <span class="text-rose-500">*</span>
+                </label>
+                <select name="location" id="formLocation" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for loc in CAMPUS_LOCATIONS %}
+                        <option value="{{ loc }}">{{ loc }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Color & Brand -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Primary Color</label>
+                <input type="text" name="primary_color" id="formColor" placeholder="e.g. Black, Blue, Silver" 
+                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Brand / Manufacturer</label>
+                <input type="text" name="brand" id="formBrand" placeholder="e.g. boAt, Milton, HP, Casio" 
+                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <!-- Photo Upload / Image URL -->
+        <div class="border-t border-slate-100 pt-6">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Item Photo (Upload or URL)
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <input type="file" name="image_file" accept="image/*" id="imageFileInput" 
+                           class="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                    <p class="text-[11px] text-slate-400 mt-1">Upload a real snapshot taken on campus.</p>
+                </div>
+                <div>
+                    <input type="url" name="image_url" placeholder="Or paste image URL (Unsplash, Cloudinary...)" 
+                           class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Description / Notable Observations
+            </label>
+            <textarea name="description" rows="3" placeholder="e.g. Found on table 4 in the canteen. Has a small sticker on the front lid." 
+                      class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+
+        <!-- Anti-Theft Verification Shield (Creative Feature) -->
+        <div class="bg-amber-50/70 border border-amber-200 p-5 rounded-2xl space-y-3">
+            <div class="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
+                <i class="fa-solid fa-shield-halved text-amber-600"></i>
+                <span>Ownership Shield (Anti-Fake Claim Protection)</span>
+            </div>
+            <p class="text-xs text-slate-600">
+                To prevent random people from falsely claiming this item, set a secret question only the true owner would know.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <input type="text" name="secret_question" placeholder="Secret Question (e.g. Color of keychain?)" 
+                           class="w-full px-3.5 py-2.5 bg-white border border-amber-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                    <input type="text" name="secret_answer" placeholder="Expected Secret Answer (e.g. red batman)" 
+                           class="w-full px-3.5 py-2.5 bg-white border border-amber-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporter Contact -->
+        <div class="border-t border-slate-100 pt-6">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                Your Contact Information
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input type="text" name="reporter_name" required placeholder="Your Name / Dept" 
+                       class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                <input type="tel" name="reporter_phone" placeholder="WhatsApp / Phone No." 
+                       class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                <input type="email" name="reporter_email" placeholder="JSPM Email (@jspm.edu.in)" 
+                       class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-6 rounded-2xl shadow-lg hover:shadow-blue-500/25 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Publish Found Item & Generate WhatsApp Card</span>
+            </button>
+            <p class="text-center text-[11px] text-slate-400 mt-2">
+                Saves 100% typing: A formatted WhatsApp broadcast card will be ready immediately on the next page.
+            </p>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function runAutoTag() {
+    const input = document.getElementById('quickInput').value.trim();
+    if (!input) return;
+
+    const btn = document.getElementById('autoTagBtn');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Tagging...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/quick-tag', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: input})
+        });
+        const data = await response.json();
+
+        if (data.category && data.category !== 'Others') {
+            document.getElementById('formCategory').value = data.category;
+        }
+        if (data.color) {
+            document.getElementById('formColor').value = data.color;
+        }
+        if (data.brand) {
+            document.getElementById('formBrand').value = data.brand;
+        }
+        if (!document.getElementById('formTitle').value) {
+            document.getElementById('formTitle').value = input;
+        }
+
+        document.getElementById('aiFeedback').classList.remove('hidden');
+    } catch (e) {
+        console.error(e);
+    } finally {
+        btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Auto-Fill';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}
