@@ -379,5 +379,10 @@ def api_check_match():
     return jsonify({'matches': matches[:3]})
 
 if __name__ == '__main__':
-    print("Starting JSPM CampuSleuth Web Application on http://localhost:5000 ...")
-    app.run(debug=True, port=5000)
+    print("==================================================================")
+    print("  JSPM CampuSleuth is RUNNING!")
+    print("  Open this link in your browser: http://127.0.0.1:5000")
+    print("  Or: http://localhost:5000")
+    print("  Keep this terminal window open while using the website!")
+    print("==================================================================")
+    app.run(host='0.0.0.0', port=5000, debug=False)
