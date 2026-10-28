@@ -91,18 +91,9 @@ flowchart TD
 
 ---
 
-## 📱 4. Multi-Platform Support: Web, PWA & Native Android App
 
-### Option A: Progressive Web App (PWA)
-* Responsive UI with native mobile bottom navigation bar (**Feed**, **Radar**, **Found**, **Awards**, **Digest**, **Desk**).
-* One-tap install banner (**"Add to Home Screen"**) on Chrome Android & Safari iOS.
 
-### Option B: Native Android Studio App (`android_app/`)
-* Complete Android Studio project located in [`android_app/`](./android_app).
-* **MainActivity.java:** Fullscreen WebView with pull-to-refresh, camera file chooser, and native Android back-button navigation.
-* **Native WhatsApp Intent:** Clicking "Share" opens the real native WhatsApp app installed on Android.
 
----
 
 ## 🛠️ 5. Technology Stack
 
