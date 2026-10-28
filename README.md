@@ -91,16 +91,10 @@ flowchart TD
 
 ---
 
-## 📱 4. Multi-Platform Support: Web, PWA & Native Android App
-
-### Option A: Progressive Web App (PWA)
-* Responsive UI with native mobile bottom navigation bar (**Feed**, **Radar**, **Found**, **Awards**, **Digest**, **Desk**).
+## 📱 4. Mobile Support: Progressive Web App (PWA)
+* Responsive mobile-first UI with native bottom navigation bar (**Feed**, **Radar**, **Found**, **Awards**, **Digest**, **Desk**).
 * One-tap install banner (**"Add to Home Screen"**) on Chrome Android & Safari iOS.
-
-### Option B: Native Android Studio App (`android_app/`)
-* Complete Android Studio project located in [`android_app/`](./android_app).
-* **MainActivity.java:** Fullscreen WebView with pull-to-refresh, camera file chooser, and native Android back-button navigation.
-* **Native WhatsApp Intent:** Clicking "Share" opens the real native WhatsApp app installed on Android.
+* Offline support and standalone full-screen mobile app experience.
 
 ---
 
@@ -110,11 +104,11 @@ flowchart TD
 |---|---|
 | **Backend** | Python (Flask), Gunicorn WSGI |
 | **Frontend** | HTML5, Tailwind CSS, FontAwesome 6, Vanilla JavaScript |
-| **Mobile App** | Android Studio, Java, AndroidX, PWA Web Manifest & Service Workers |
+| **Mobile App** | Progressive Web App (PWA), Web Manifest & Service Workers |
 | **Database** | SQLite3 (Persistent relational campus storage) |
 | **AI / NLP** | Rule-based semantic extraction & multi-factor similarity matching |
 | **Integrations** | WhatsApp Cloud URI Scheme (`api.whatsapp.com`), Web Speech API |
-| **Deployment** | Render.com (Cloud PaaS), GitHub CI/CD |
+| **Deployment** | Vercel & Render.com (Cloud PaaS), GitHub CI/CD |
 
 ---
 
@@ -156,16 +150,7 @@ Visit: **`http://127.0.0.1:5000`** *(or `http://localhost:5000`)*
 
 ---
 
-## 🤖 8. How to Open the Android Studio Project
-
-1. Open **Android Studio**.
-2. Click **Open** and choose the [`android_app`](./android_app) directory.
-3. Let Gradle sync dependencies.
-4. Go to **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)** to generate your installable `app-debug.apk`.
-
----
-
-## 🗺️ 9. Application Sitemap & URL Endpoints
+## 🗺️ 8. Application Sitemap & URL Endpoints
 
 | Route | Page Name | Purpose |
 |---|---|---|
