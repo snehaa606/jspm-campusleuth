@@ -111,7 +111,12 @@
                                     <span class="text-blue-600 font-semibold">Open</span>
                                 {% endif %}
                             </td>
-                            <td class="py-3 px-4 text-right">
+                            <td class="py-3 px-4 text-right space-x-2">
+                                {% if it.status == 'returned' %}
+                                    <a href="{{ url_for('view_certificate', item_id=it.id) }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-lg transition" title="Print Good Samaritan Certificate">
+                                        <i class="fa-solid fa-award"></i> Certificate
+                                    </a>
+                                {% endif %}
                                 <a href="{{ url_for('item_detail', item_id=it.id) }}" class="text-blue-600 hover:text-blue-800 font-bold hover:underline">
                                     Details
                                 </a>

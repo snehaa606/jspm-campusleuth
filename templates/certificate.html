@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSPM Good Samaritan Certificate | {{ item.reporter_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .serif-font { font-family: 'Cinzel', serif; }
+        .cert-border {
+            border: 12px double #D97706;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen py-10 px-4 flex flex-col items-center justify-center text-slate-800">
+
+    <!-- Action Bar -->
+    <div class="max-w-4xl w-full mb-6 flex items-center justify-between no-print">
+        <a href="{{ url_for('security_desk') }}" class="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Back to Security Desk
+        </a>
+        <div class="flex items-center gap-3">
+            <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2">
+                <i class="fa-solid fa-print"></i> Print / Save as Official PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Official Certificate Frame -->
+    <div class="max-w-4xl w-full bg-gradient-to-br from-amber-50 via-white to-orange-50 cert-border p-8 md:p-14 rounded-2xl shadow-2xl relative overflow-hidden">
+        
+        <!-- Watermark Emblem in Background -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+            <i class="fa-solid fa-shield-halved text-[30rem] text-amber-900"></i>
+        </div>
+
+        <div class="relative z-10 text-center">
+            
+            <!-- University Header -->
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <div class="w-12 h-12 rounded-2xl bg-blue-900 text-amber-400 flex items-center justify-center text-2xl font-black shadow-md">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div class="text-left">
+                    <h3 class="serif-font text-lg font-black tracking-wider text-blue-950 leading-tight">JSPM UNIVERSITY</h3>
+                    <p class="text-[10px] font-bold tracking-widest text-amber-800 uppercase">Office of Student Welfare & Campus Integrity</p>
+                </div>
+            </div>
+
+            <div class="w-24 h-0.5 bg-amber-600 mx-auto my-4"></div>
+
+            <!-- Title -->
+            <h1 class="serif-font text-2xl sm:text-4xl font-extrabold text-blue-950 tracking-wider mb-2">
+                CERTIFICATE OF HONESTY
+            </h1>
+            <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-8">
+                Campus Good Samaritan Commendation
+            </p>
+
+            <p class="text-sm italic text-slate-600 mb-2">This is proudly awarded to</p>
+            <h2 class="text-2xl sm:text-3xl font-black text-blue-900 tracking-wide border-b-2 border-dashed border-amber-300 pb-2 inline-block px-8 mb-6">
+                {{ item.reporter_name }}
+            </h2>
+
+            <!-- Citation -->
+            <p class="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed mb-8">
+                In recognition of exceptional honesty and moral integrity displayed on campus by safely reporting and facilitating the return of recovered property:
+                <br>
+                <strong class="text-slate-900 text-sm mt-1 inline-block">"{{ item.title }}"</strong> (Found at {{ item.location }}).
+            </p>
+
+            <!-- Signatures & Verification Hash -->
+            <div class="grid grid-cols-3 gap-6 pt-6 border-t border-amber-200/80 items-end mt-6">
+                <div>
+                    <div class="font-serif italic text-slate-700 text-sm mb-1 font-bold">Dr. K. S. Sharma</div>
+                    <div class="w-32 h-0.5 bg-slate-300 mx-auto mb-1"></div>
+                    <p class="text-[10px] font-bold uppercase text-slate-400">Dean of Student Affairs</p>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-full border-2 border-amber-500 bg-amber-100/50 flex items-center justify-center text-amber-700 text-2xl font-black shadow-inner mb-1">
+                        <i class="fa-solid fa-stamp"></i>
+                    </div>
+                    <span class="text-[9px] font-mono font-bold text-amber-900">VERIFIED CAMPUS SEAL</span>
+                </div>
+
+                <div>
+                    <div class="font-serif italic text-slate-700 text-sm mb-1 font-bold">Campus Security Wing</div>
+                    <div class="w-32 h-0.5 bg-slate-300 mx-auto mb-1"></div>
+                    <p class="text-[10px] font-bold uppercase text-slate-400">Central Retrieval Officer</p>
+                </div>
+            </div>
+
+            <!-- Footer Verification ID -->
+            <div class="mt-8 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-[10px] text-slate-400 font-mono">
+                <span>Certificate Hash: <strong class="text-slate-600">{{ cert_hash }}</strong></span>
+                <span>Issued On: {{ item.date_reported }}</span>
+                <span>CampuSleuth Integrity Protocol</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -359,6 +359,62 @@ def security_desk():
 
     return render_template('security_desk.html', items=all_items, message=message, msg_type=msg_type)
 
+@app.route('/campus-map')
+def campus_map():
+    conn = database.get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM items ORDER BY id DESC")
+    all_items = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+
+    # Aggregate counts per location
+    location_data = {}
+    for loc in CAMPUS_LOCATIONS:
+        location_data[loc] = {'found': 0, 'lost': 0, 'returned': 0, 'items': []}
+
+    for item in all_items:
+        matched_loc = None
+        for loc in CAMPUS_LOCATIONS:
+            if loc.lower() in item['location'].lower() or item['location'].lower() in loc.lower():
+                matched_loc = loc
+                break
+        if not matched_loc:
+            matched_loc = CAMPUS_LOCATIONS[0]
+        
+        if item['status'] == 'returned':
+            location_data[matched_loc]['returned'] += 1
+        elif item['type'] == 'found':
+            location_data[matched_loc]['found'] += 1
+        else:
+            location_data[matched_loc]['lost'] += 1
+        location_data[matched_loc]['items'].append(item)
+
+    # Calculate Top Loss Hotspot
+    sorted_hotspots = sorted(
+        location_data.items(), 
+        key=lambda x: (x[1]['found'] + x[1]['lost']), 
+        reverse=True
+    )
+
+    return render_template('campus_map.html', 
+                           location_data=location_data, 
+                           top_hotspot=sorted_hotspots[0] if sorted_hotspots else None)
+
+@app.route('/certificate/<int:item_id>')
+def view_certificate(item_id):
+    conn = database.get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM items WHERE id = ?", (item_id,))
+    item = cursor.fetchone()
+    conn.close()
+
+    if not item:
+        flash("Item not found.", "danger")
+        return redirect(url_for('index'))
+
+    cert_hash = f"JSPM-HONESTY-{item['id']:04d}-2026"
+    return render_template('certificate.html', item=dict(item), cert_hash=cert_hash)
+
 @app.route('/api/quick-tag', methods=['POST'])
 def api_quick_tag():
     data = request.get_json() or {}

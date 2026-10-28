@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Campus Radar & Loss Heatmap | JSPM CampuSleuth{% endblock %}
+
+{% block extra_head %}
+<style>
+    .radar-pulse {
+        animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-ring {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .radar-pulse-green {
+        animation: pulse-green 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    @keyframes pulse-green {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-900 text-xs font-bold uppercase tracking-wider mb-2">
+                <i class="fa-solid fa-satellite-dish text-blue-600 animate-spin"></i> Live Campus Geospatial Radar
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-black text-slate-900">JSPM Campus Radar & Loss Heatmap</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Real-time geospatial visualization of items recovered and reported across campus zones.</p>
+        </div>
+        
+        <a href="{{ url_for('index') }}" class="inline-flex items-center gap-2 text-xs font-bold bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl shadow-sm transition">
+            <i class="fa-solid fa-table-cells-large"></i> Switch to Standard Feed
+        </a>
+    </div>
+
+    <!-- AI Predictive Campus Safety Alert -->
+    <div class="bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600 text-white p-5 rounded-3xl shadow-lg mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl font-bold flex-shrink-0">
+                <i class="fa-solid fa-triangle-exclamation text-amber-200"></i>
+            </div>
+            <div>
+                <h4 class="font-black text-sm">AI Loss Hotspot Advisory: {{ top_hotspot[0] }}</h4>
+                <p class="text-xs text-amber-100">
+                    Highest loss density detected in <strong>{{ top_hotspot[0] }}</strong> ({{ top_hotspot[1].found + top_hotspot[1].lost }} active items). 
+                    Students are reminded to check tables before leaving!
+                </p>
+            </div>
+        </div>
+        <span class="bg-black/30 backdrop-blur-md text-amber-200 text-[11px] font-mono font-bold px-3 py-1.5 rounded-xl self-start sm:self-auto">
+            Risk Index: 88% High
+        </span>
+    </div>
+
+    <!-- Interactive Campus Radar Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
+
+        <!-- Left: Interactive Campus Zone Cards (The Blueprint Grid) -->
+        <div class="lg:col-span-7 space-y-4">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="font-extrabold text-sm text-slate-700 uppercase tracking-wider">
+                    Select a Campus Zone to Inspect:
+                </h3>
+                <span class="text-xs text-slate-400">Click any zone to reveal items</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% for loc, data in location_data.items() %}
+                    {% set total_items = data.found + data.lost %}
+                    <div onclick="selectZone('{{ loc|replace("'", "\\'") }}')" 
+                         id="card-{{ loop.index }}"
+                         class="zone-card cursor-pointer bg-white p-5 rounded-2xl border-2 border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-md transition duration-200 group relative overflow-hidden">
+                        
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-blue-50 text-slate-600 group-hover:text-blue-600 flex items-center justify-center text-lg font-bold transition">
+                                {% if 'Canteen' in loc %}
+                                    <i class="fa-solid fa-utensils"></i>
+                                {% elif 'Library' in loc %}
+                                    <i class="fa-solid fa-book-open-reader"></i>
+                                {% elif 'Computer' in loc %}
+                                    <i class="fa-solid fa-laptop-code"></i>
+                                {% elif 'Mechanical' in loc or 'Civil' in loc %}
+                                    <i class="fa-solid fa-gears"></i>
+                                {% elif 'Parking' in loc %}
+                                    <i class="fa-solid fa-square-parking"></i>
+                                {% elif 'Auditorium' in loc %}
+                                    <i class="fa-solid fa-microphone-lines"></i>
+                                {% elif 'Sports' in loc %}
+                                    <i class="fa-solid fa-volleyball"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-building-columns"></i>
+                                {% endif %}
+                            </div>
+
+                            <!-- Live Radar Ping Indicator -->
+                            {% if total_items > 2 %}
+                                <span class="radar-pulse inline-flex items-center gap-1 bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> High Loss Area
+                                </span>
+                            {% elif total_items > 0 %}
+                                <span class="radar-pulse-green inline-flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span> Active Items
+                                </span>
+                            {% else %}
+                                <span class="bg-slate-100 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    Clear
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <h4 class="font-extrabold text-sm text-slate-900 group-hover:text-blue-600 transition mb-2">
+                            {{ loc }}
+                        </h4>
+
+                        <div class="flex items-center gap-3 text-xs text-slate-500 font-semibold">
+                            <span class="text-emerald-600">🟢 {{ data.found }} Found</span>
+                            <span>•</span>
+                            <span class="text-rose-600">🔴 {{ data.lost }} Lost</span>
+                            <span>•</span>
+                            <span class="text-slate-400">✅ {{ data.returned }} Returned</span>
+                        </div>
+
+                        <!-- Progress Bar of Activity -->
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-3 overflow-hidden">
+                            {% set pct = (total_items * 25)|int %}
+                            <div class="bg-blue-600 h-full rounded-full" style="width: {{ pct if pct <= 100 else 100 }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right: Live Selected Zone Inspection Drawer -->
+        <div class="lg:col-span-5">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm sticky top-24">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-blue-600 tracking-wider">Radar Scope</span>
+                        <h3 class="font-black text-lg text-slate-900" id="selectedZoneTitle">Main Canteen</h3>
+                    </div>
+                    <span class="bg-slate-100 text-slate-600 text-xs font-mono font-bold px-2.5 py-1 rounded-xl" id="selectedZoneBadge">
+                        Zone Data
+                    </span>
+                </div>
+
+                <!-- Items Container in Selected Zone -->
+                <div id="zoneItemsList" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// JSON payload of all location data
+const locationData = {{ location_data|tojson }};
+
+function selectZone(zoneName) {
+    document.getElementById('selectedZoneTitle').innerText = zoneName;
+    const data = locationData[zoneName] || {found: 0, lost: 0, returned: 0, items: []};
+    const total = data.found + data.lost;
+    
+    document.getElementById('selectedZoneBadge').innerText = `${total} Active Item${total === 1 ? '' : 's'}`;
+
+    const container = document.getElementById('zoneItemsList');
+    container.innerHTML = '';
+
+    if (!data.items || data.items.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-slate-400">
+                <i class="fa-solid fa-shield-check text-3xl mb-2 text-emerald-400"></i>
+                <p class="text-xs font-semibold">No active lost or found items reported in this zone.</p>
+            </div>
+        `;
+        return;
+    }
+
+    data.items.forEach(it => {
+        const isFound = it.type === 'found';
+        const cardHtml = `
+            <div class="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100 transition flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="${it.image_url}" class="w-12 h-12 object-cover rounded-xl flex-shrink-0">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 mb-0.5">
+                            <span class="${isFound ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'} text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded">
+                                ${isFound ? 'Found' : 'Lost'}
+                            </span>
+                            <span class="text-[10px] text-slate-400">${it.date_reported}</span>
+                        </div>
+                        <h5 class="text-xs font-bold text-slate-900 truncate">${it.title}</h5>
+                        <p class="text-[10px] text-slate-500 truncate">${it.category} • ${it.brand || 'No Brand'}</p>
+                    </div>
+                </div>
+                <a href="/item/${it.id}" class="text-xs font-bold bg-white border border-slate-200 hover:border-blue-500 text-blue-600 px-3 py-1.5 rounded-xl whitespace-nowrap shadow-sm transition">
+                    View
+                </a>
+            </div>
+        `;
+        container.innerHTML += cardHtml;
+    });
+}
+
+// Auto-select first location on load
+window.addEventListener('DOMContentLoaded', () => {
+    const firstLoc = Object.keys(locationData)[0];
+    if (firstLoc) {
+        selectZone(firstLoc);
+    }
+});
+</script>
+{% endblock %}

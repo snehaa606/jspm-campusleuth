@@ -111,11 +111,15 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <input type="hidden" name="type" value="{{ active_type }}">
 
-                <!-- Search Input -->
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search title, brand, tag..." 
-                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <!-- Search Input with AI Voice Search -->
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400 text-sm"></i>
+                    <input type="text" name="search" id="searchInput" value="{{ search_query }}" placeholder="Search title, brand, tag..." 
+                           class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="button" onclick="startVoiceSearch()" id="voiceBtn" title="Speak to Search (AI Voice Assistant)"
+                            class="absolute right-2 p-1.5 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-200/50 transition">
+                        <i class="fa-solid fa-microphone text-sm"></i>
+                    </button>
                 </div>
 
                 <!-- Category Filter -->
@@ -251,4 +255,45 @@
     {% endif %}
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function startVoiceSearch() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Voice recognition is not supported in this browser. Please use Chrome or Edge.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+
+    const btn = document.getElementById('voiceBtn');
+    const input = document.getElementById('searchInput');
+
+    btn.innerHTML = '<i class="fa-solid fa-microphone text-rose-500 animate-pulse text-base"></i>';
+    input.placeholder = "Listening... Speak now (e.g. 'Found bottle in library')";
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        btn.innerHTML = '<i class="fa-solid fa-microphone text-sm"></i>';
+        // Auto submit search form
+        input.form.submit();
+    };
+
+    recognition.onerror = function() {
+        btn.innerHTML = '<i class="fa-solid fa-microphone text-sm"></i>';
+        input.placeholder = "Search title, brand, tag...";
+    };
+
+    recognition.onend = function() {
+        btn.innerHTML = '<i class="fa-solid fa-microphone text-sm"></i>';
+    };
+
+    recognition.start();
+}
+</script>
 {% endblock %}
