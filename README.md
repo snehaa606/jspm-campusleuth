@@ -147,14 +147,8 @@ Visit: **`http://127.0.0.1:5000`** *(or `http://localhost:5000`)*
 
 ---
 
-## 🤖 8. How to Open the Android Studio Project
 
-1. Open **Android Studio**.
-2. Click **Open** and choose the [`android_app`](./android_app) directory.
-3. Let Gradle sync dependencies.
-4. Go to **Build** > **Build Bundle(s) / APK(s)** > **Build APK(s)** to generate your installable `app-debug.apk`.
 
----
 
 ## 🗺️ 9. Application Sitemap & URL Endpoints
 
