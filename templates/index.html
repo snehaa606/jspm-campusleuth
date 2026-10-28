@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}JSPM CampuSleuth | Zero-Typing Lost & Found Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Hero Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 text-white p-8 md:p-12 mb-10 shadow-xl border border-blue-800">
+        <div class="relative z-10 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold uppercase tracking-wider mb-4">
+                <i class="fa-solid fa-sparkles text-amber-300"></i> Smart Automation for JSPM University
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4">
+                Recover lost items <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300">without the WhatsApp chaos.</span>
+            </h1>
+            <p class="text-slate-300 text-base md:text-lg mb-8 leading-relaxed">
+                No more typing repetitive messages in class groups. CampuSleuth automatically tags photos, runs reverse AI matching, and broadcasts clean WhatsApp cards with a single click.
+            </p>
+            <div class="flex flex-wrap items-center gap-4">
+                <a href="{{ url_for('report_found') }}" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-emerald-500/25 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>I Found Something (Zero-Typing)</span>
+                </a>
+                <a href="{{ url_for('report_lost') }}" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-6 py-3.5 rounded-2xl backdrop-blur-md transition flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-hand"></i>
+                    <span>Report Lost Item</span>
+                </a>
+                <a href="{{ url_for('daily_digest') }}" class="text-emerald-300 hover:text-emerald-200 font-semibold px-4 py-3.5 text-sm flex items-center gap-2 underline underline-offset-4">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Generate Today's 6 PM WhatsApp Bulletin</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Decorative background glow -->
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute right-40 top-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+    </div>
+
+    <!-- Impact & Metrics Ticker -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Items</p>
+                <h3 class="text-2xl font-black text-slate-800">{{ stats.total }}</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                <i class="fa-solid fa-handshake-angle"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Recovery Rate</p>
+                <h3 class="text-2xl font-black text-slate-800">{{ stats.success_rate }}%</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Typing Time Saved</p>
+                <h3 class="text-2xl font-black text-slate-800">{{ stats.hours_saved }} <span class="text-sm font-semibold text-slate-400">Hours</span></h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl font-bold">
+                <i class="fa-solid fa-satellite-dish"></i>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Alerts</p>
+                <h3 class="text-2xl font-black text-slate-800">{{ stats.active_found + stats.active_lost }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Panel -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+        <form method="GET" action="{{ url_for('index') }}" class="space-y-4">
+            
+            <!-- Type Tabs -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="inline-flex p-1 bg-slate-100 rounded-xl text-xs font-bold">
+                    <a href="{{ url_for('index', type='all', category=selected_category, location=selected_location) }}" 
+                       class="px-4 py-2 rounded-lg transition {% if active_type == 'all' %}bg-white text-slate-900 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                        All Items ({{ stats.total }})
+                    </a>
+                    <a href="{{ url_for('index', type='found', category=selected_category, location=selected_location) }}" 
+                       class="px-4 py-2 rounded-lg transition flex items-center gap-1.5 {% if active_type == 'found' %}bg-white text-emerald-700 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Found Items
+                    </a>
+                    <a href="{{ url_for('index', type='lost', category=selected_category, location=selected_location) }}" 
+                       class="px-4 py-2 rounded-lg transition flex items-center gap-1.5 {% if active_type == 'lost' %}bg-white text-rose-700 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Lost Reports
+                    </a>
+                </div>
+
+                <div class="text-xs text-slate-500 font-medium">
+                    Showing <span class="font-bold text-slate-800">{{ items|length }}</span> verified campus items
+                </div>
+            </div>
+
+            <!-- Dropdown Filters & Search Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <input type="hidden" name="type" value="{{ active_type }}">
+
+                <!-- Search Input -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Search title, brand, tag..." 
+                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Category Filter -->
+                <div>
+                    <select name="category" onchange="this.form.submit()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        {% for cat in CATEGORIES %}
+                            <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- JSPM Location Filter -->
+                <div>
+                    <select name="location" onchange="this.form.submit()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All JSPM Locations</option>
+                        {% for loc in CAMPUS_LOCATIONS %}
+                            <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
+                        Apply Filters
+                    </button>
+                    {% if search_query or selected_category or selected_location or active_type != 'all' %}
+                        <a href="{{ url_for('index') }}" class="p-2.5 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-xl text-sm flex items-center justify-center" title="Reset Filters">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Items Grid -->
+    {% if items %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in items %}
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition group flex flex-col">
+                    
+                    <!-- Image with Overlays -->
+                    <div class="relative h-48 bg-slate-100 overflow-hidden">
+                        <img src="{{ item.image_url }}" alt="{{ item.title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        
+                        <!-- Status Badge -->
+                        <div class="absolute top-3 left-3">
+                            {% if item.status == 'returned' %}
+                                <span class="bg-emerald-600 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow">
+                                    <i class="fa-solid fa-check mr-1"></i> Returned
+                                </span>
+                            {% elif item.status == 'claimed' %}
+                                <span class="bg-amber-500 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow">
+                                    <i class="fa-solid fa-clock mr-1"></i> Claim Under Review
+                                </span>
+                            {% else %}
+                                {% if item.type == 'found' %}
+                                    <span class="bg-emerald-500 text-slate-950 text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow">
+                                        🟢 Found Item
+                                    </span>
+                                {% else %}
+                                    <span class="bg-rose-500 text-white text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow">
+                                        🔴 Lost Report
+                                    </span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Category Pill -->
+                        <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                            {{ item.category }}
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5 font-medium">
+                                <span><i class="fa-regular fa-clock mr-1"></i> {{ item.date_reported }}</span>
+                                {% if item.brand %}
+                                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">{{ item.brand }}</span>
+                                {% endif %}
+                            </div>
+
+                            <h3 class="font-bold text-slate-900 text-base mb-2 group-hover:text-blue-600 transition line-clamp-1">
+                                {{ item.title }}
+                            </h3>
+
+                            <p class="text-xs text-slate-500 mb-3 flex items-start gap-1.5 font-medium">
+                                <i class="fa-solid fa-location-dot text-rose-500 mt-0.5 text-xs"></i>
+                                <span class="line-clamp-1">{{ item.location }}</span>
+                            </p>
+
+                            {% if item.description %}
+                                <p class="text-xs text-slate-600 line-clamp-2 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                    {{ item.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Card Action Buttons -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                            <a href="{{ url_for('item_detail', item_id=item.id) }}" class="flex-1 text-center bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs py-2.5 rounded-xl transition">
+                                View & Claim Details
+                            </a>
+
+                            <!-- Instant WhatsApp Share (Pre-formatted) -->
+                            <a href="{{ url_for('item_detail', item_id=item.id) }}#whatsapp-card" title="1-Click WhatsApp Broadcast (No Typing Needed)" class="p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl text-sm transition">
+                                <i class="fa-brands fa-whatsapp text-base"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200">
+            <div class="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-2xl">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800 mb-1">No items match your filter</h3>
+            <p class="text-sm text-slate-500 max-w-sm mx-auto mb-6">
+                Try searching for different keywords, resetting filters, or report a new lost/found item.
+            </p>
+            <a href="{{ url_for('index') }}" class="inline-flex items-center gap-2 text-xs font-bold bg-slate-800 text-white px-4 py-2.5 rounded-xl hover:bg-slate-900 transition">
+                <i class="fa-solid fa-rotate-left"></i> Reset All Filters
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

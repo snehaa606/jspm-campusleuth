@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JSPM CampuSleuth | AI Lost & Found Hub{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jspm: {
+                            blue: '#1E3A8A',
+                            gold: '#D97706',
+                            teal: '#0D9488',
+                            whatsapp: '#25D366'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Top Campus Announcement Bar -->
+    <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-900 text-white text-xs py-2 px-4 text-center font-medium shadow-inner flex items-center justify-center gap-2">
+        <span class="bg-amber-400 text-blue-950 px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider">Zero-Typing System</span>
+        <span>No more manual WhatsApp typing! AI auto-formats and matches lost & found items across JSPM University.</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+                        <i class="fa-solid fa-magnifying-glass-location"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-extrabold text-lg text-slate-900 tracking-tight">CampuSleuth</span>
+                            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded">JSPM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-medium">Lost & Found Intelligence</p>
+                    </div>
+                </a>
+
+                <!-- Nav Links -->
+                <nav class="hidden md:flex items-center gap-1">
+                    <a href="{{ url_for('index') }}" class="px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors">
+                        <i class="fa-solid fa-compass mr-1.5 text-slate-400"></i> Live Feed
+                    </a>
+                    <a href="{{ url_for('daily_digest') }}" class="px-3 py-2 rounded-lg text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center gap-1.5">
+                        <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                        <span>Daily WhatsApp Digest</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">6 PM</span>
+                    </a>
+                    <a href="{{ url_for('security_desk') }}" class="px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-blue-700 hover:bg-slate-100 transition-colors">
+                        <i class="fa-solid fa-shield-halved mr-1.5 text-slate-400"></i> Security Desk
+                    </a>
+                </nav>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2.5">
+                    <a href="{{ url_for('report_lost') }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3.5 py-2 rounded-xl transition">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>I Lost Something</span>
+                    </a>
+                    <a href="{{ url_for('report_found') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl shadow-sm hover:shadow transition transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Found an Item</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Notifications -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-4 mb-3 rounded-xl border flex items-center justify-between {% if category == 'success' %}bg-emerald-50 border-emerald-200 text-emerald-800{% elif category == 'danger' %}bg-rose-50 border-rose-200 text-rose-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid {% if category == 'success' %}fa-circle-check text-emerald-600{% elif category == 'danger' %}fa-triangle-exclamation text-rose-600{% else %}fa-circle-info text-blue-600{% endif %} text-lg"></i>
+                            <span class="text-sm font-semibold">{{ message }}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-sm">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Body Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-700">JSPM CampuSleuth</span>
+                <span>• University Campus Lost & Found Automation Engine</span>
+            </div>
+            <div class="flex items-center gap-4 text-slate-600 font-medium">
+                <a href="{{ url_for('daily_digest') }}" class="hover:text-emerald-600 flex items-center gap-1">
+                    <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp Broadcast Hub
+                </a>
+                <span>•</span>
+                <a href="{{ url_for('security_desk') }}" class="hover:text-blue-600">Gate Security Handoff</a>
+            </div>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
