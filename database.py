@@ -1,10 +1,24 @@
 import sqlite3
 import os
+import shutil
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'jspm_lost_found.db')
+# Handle Vercel serverless writable storage (/tmp)
+if os.environ.get('VERCEL'):
+    DB_PATH = '/tmp/jspm_lost_found.db'
+    bundled_db = os.path.join(os.path.dirname(__file__), 'jspm_lost_found.db')
+    if not os.path.exists(DB_PATH) and os.path.exists(bundled_db):
+        try:
+            shutil.copyfile(bundled_db, DB_PATH)
+        except Exception:
+            pass
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), 'jspm_lost_found.db')
 
 def get_db():
+    # If on Vercel and DB doesn't exist yet, initialize it
+    if os.environ.get('VERCEL') and not os.path.exists(DB_PATH):
+        init_db()
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
