@@ -101,7 +101,6 @@ flowchart TD
 |---|---|
 | **Backend** | Python (Flask), Gunicorn WSGI |
 | **Frontend** | HTML5, Tailwind CSS, FontAwesome 6, Vanilla JavaScript |
-| **Mobile App** | Android Studio, Java, AndroidX, PWA Web Manifest & Service Workers |
 | **Database** | SQLite3 (Persistent relational campus storage) |
 | **AI / NLP** | Rule-based semantic extraction & multi-factor similarity matching |
 | **Integrations** | WhatsApp Cloud URI Scheme (`api.whatsapp.com`), Web Speech API |
