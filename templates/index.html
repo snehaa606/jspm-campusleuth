@@ -293,46 +293,153 @@
         </div>
     {% endif %}
 
+<!-- VOICE ASSISTANT MODAL OVERLAY -->
+<div id="voiceModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 text-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl relative animate-in fade-in zoom-in duration-200">
+        <button onclick="closeVoiceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+
+        <!-- Pulsing Soundwave Icon -->
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-500 flex items-center justify-center text-3xl shadow-lg shadow-rose-500/40 animate-bounce" id="voiceWaveIcon">
+            <i class="fa-solid fa-microphone text-white"></i>
+        </div>
+
+        <h3 class="text-xl font-black mb-1" id="voiceModalTitle">Listening to Your Voice...</h3>
+        <p class="text-xs text-slate-400 mb-5" id="voiceModalStatus">Speak clearly into your microphone (e.g. "Found boat earbuds in canteen")</p>
+
+        <!-- Live transcription display -->
+        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 min-h-[64px] flex items-center justify-center text-sm font-semibold text-emerald-400 mb-6" id="voiceTranscriptBox">
+            <span class="text-slate-500 italic">Waiting for your voice...</span>
+        </div>
+
+        <!-- Sample Voice Simulation (guarantees it works even if mic is unattached or blocked) -->
+        <div class="text-left border-t border-slate-800 pt-4 mb-5">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Or click a simulated voice query:</p>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="simulateVoiceQuery('boAt Airdopes')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition">
+                    🎧 "boAt Airdopes"
+                </button>
+                <button type="button" onclick="simulateVoiceQuery('Milton Bottle')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition">
+                    🍶 "Milton Bottle"
+                </button>
+                <button type="button" onclick="simulateVoiceQuery('Student ID Card')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition">
+                    🪪 "ID Card"
+                </button>
+                <button type="button" onclick="simulateVoiceQuery('HP Charger')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-xl border border-slate-700 transition">
+                    💻 "HP Charger"
+                </button>
+            </div>
+        </div>
+
+        <button type="button" onclick="closeVoiceModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-3 rounded-xl transition">
+            Cancel
+        </button>
+    </div>
+</div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+let recognitionInstance = null;
+
+function openVoiceModal() {
+    document.getElementById('voiceModal').classList.remove('hidden');
+    document.getElementById('voiceModalTitle').innerText = "Listening to Your Voice...";
+    document.getElementById('voiceModalStatus').innerText = 'Speak clearly into your microphone (e.g. "Boat earbuds in canteen")';
+    document.getElementById('voiceTranscriptBox').innerHTML = '<span class="text-slate-500 italic">Waiting for your voice...</span>';
+}
+
+function closeVoiceModal() {
+    document.getElementById('voiceModal').classList.add('hidden');
+    if (recognitionInstance) {
+        try { recognitionInstance.stop(); } catch(e){}
+    }
+}
+
 function startVoiceSearch() {
+    openVoiceModal();
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-        alert("Voice recognition is not supported in this browser. Please use Chrome or Edge.");
+        document.getElementById('voiceModalTitle').innerText = "Speech API Not Available";
+        document.getElementById('voiceModalStatus').innerText = "Your browser does not support Web Speech API. Try the one-click simulated voice buttons below!";
         return;
     }
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-IN';
-    recognition.interimResults = false;
+    try {
+        recognitionInstance = new SpeechRecognition();
+        recognitionInstance.lang = 'en-IN';
+        recognitionInstance.interimResults = true;
 
-    const btn = document.getElementById('voiceBtn');
+        recognitionInstance.onstart = function() {
+            document.getElementById('voiceModalStatus').innerText = "Microphone active! Speak now...";
+        };
+
+        recognitionInstance.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            const current = finalTranscript || interimTranscript;
+            if (current) {
+                document.getElementById('voiceTranscriptBox').innerHTML = `
+                    <span class="text-emerald-400 font-bold">"${current}"</span>
+                `;
+            }
+
+            if (finalTranscript) {
+                executeVoiceSearch(finalTranscript);
+            }
+        };
+
+        recognitionInstance.onerror = function(event) {
+            console.log("Speech error:", event.error);
+            if (event.error === 'not-allowed') {
+                document.getElementById('voiceModalTitle').innerText = "Microphone Permission Blocked";
+                document.getElementById('voiceModalStatus').innerText = "Please allow microphone access in your browser address bar, or use the simulated voice buttons below.";
+            } else if (event.error === 'no-speech') {
+                document.getElementById('voiceModalTitle').innerText = "No Speech Detected";
+                document.getElementById('voiceModalStatus').innerText = "We didn't hear anything. Speak again or click a sample query below.";
+            }
+        };
+
+        recognitionInstance.start();
+    } catch(err) {
+        console.error(err);
+        document.getElementById('voiceModalTitle').innerText = "Voice Ready";
+        document.getElementById('voiceModalStatus').innerText = "Select a simulated voice query below to test immediately:";
+    }
+}
+
+function simulateVoiceQuery(text) {
+    document.getElementById('voiceTranscriptBox').innerHTML = `
+        <span class="text-emerald-400 font-bold">"${text}"</span>
+    `;
+    document.getElementById('voiceModalTitle').innerText = "Voice Recognized!";
+    document.getElementById('voiceModalStatus').innerText = "Submitting voice search...";
+    setTimeout(() => {
+        executeVoiceSearch(text);
+    }, 600);
+}
+
+function executeVoiceSearch(query) {
     const input = document.getElementById('searchInput');
-
-    btn.innerHTML = '<i class="fa-solid fa-microphone text-rose-500 animate-pulse text-base"></i>';
-    input.placeholder = "Listening... Speak now (e.g. 'Found bottle in library')";
-
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        input.value = transcript;
-        btn.innerHTML = '<i class="fa-solid fa-microphone text-sm"></i>';
-        // Auto submit search form
+    if (input) {
+        input.value = query;
+        closeVoiceModal();
         input.form.submit();
-    };
-
-    recognition.onerror = function() {
-        btn.innerHTML = '<i class="fa-solid fa-microphone text-sm"></i>';
-        input.placeholder = "Search title, brand, tag...";
-    };
-
-    recognition.onend = function() {
-        btn.innerHTML = '<i class="fa-solid fa-microphone text-sm"></i>';
-    };
-
-    recognition.start();
+    } else {
+        window.location.href = `/?search=${encodeURIComponent(query)}`;
+    }
 }
 </script>
 {% endblock %}
